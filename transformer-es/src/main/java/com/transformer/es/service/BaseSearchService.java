@@ -8,7 +8,7 @@ import com.transformer.es.service.annotation.Index;
 import com.transformer.es.service.model.DeepResponse;
 import com.transformer.es.service.model.PageQuery;
 import com.transformer.es.service.model.Pager;
-import com.zto.titans.common.util.JsonUtil;
+import com.transformer.helper.JsonHelper;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
@@ -159,7 +159,7 @@ public abstract class BaseSearchService<Document> {
             }
             ElasticSearchIndex index = new ElasticSearchIndex(getIndexOrDefault(indexStr));
             index.setId(id);
-            index.setJsonData(JsonUtil.toJSON(doc));
+            index.setJsonData(JsonHelper.toJson(doc));
 
             indexList.add(index);
         }
@@ -205,7 +205,7 @@ public abstract class BaseSearchService<Document> {
         final boolean exists = response.isExists();
         if (exists) {
             final String json = response.getSourceAsString();
-            final Document result = JsonUtil.parse(json, documentClass);
+            final Document result = JsonHelper.parseObject(json, documentClass);
             return result;
         }
         return null;
@@ -256,7 +256,7 @@ public abstract class BaseSearchService<Document> {
         List<Document> esPoList = new ArrayList<>();
         for (SearchHit searchHit : searchHits) {
             String json = searchHit.getSourceAsString();
-            esPoList.add(JsonUtil.parse(json, documentClass));
+            esPoList.add(JsonHelper.parseObject(json, documentClass));
         }
         // 结果处理
         for (Document esPo : esPoList) {
@@ -325,7 +325,7 @@ public abstract class BaseSearchService<Document> {
         SearchHit[] searchHits = searchResponse.getHits().getHits();
         for (SearchHit searchHit : searchHits) {
             String s = searchHit.getSourceAsString();
-            final Document esPo = JsonUtil.parse(s, documentClass);
+            final Document esPo = JsonHelper.parseObject(s, documentClass);
             esPoList.add(esPo);
         }
         // 结果处理
@@ -357,7 +357,7 @@ public abstract class BaseSearchService<Document> {
         if (searchHits != null && searchHits.length > 0) {
             for (SearchHit searchHit : searchHits) {
                 String s = searchHit.getSourceAsString();
-                Document planPriceEs = JsonUtil.parse(s, documentClass);
+                Document planPriceEs = JsonHelper.parseObject(s, documentClass);
                 esPoList.add(planPriceEs);
             }
         } else { // 没数据 -> 清理资源

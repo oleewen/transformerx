@@ -1,4 +1,4 @@
-package com.transformer.log.aspect;
+package com.transformer.call.aspect;
 
 import com.transformer.consts.StringConst;
 import org.apache.commons.lang3.ObjectUtils;
@@ -45,7 +45,7 @@ public class ProfilerAspect {
     /** 是否首次进入 */
     private ThreadLocal<Boolean> topFlag = new ThreadLocal<>();
 
-    @Pointcut("@annotation(com.zto.tms.transformer.log.aspect.Profiler)")
+    @Pointcut("@annotation(com.transformer.call.aspect.Profiler)")
     public void profilerPoint() {
     }
 
@@ -60,7 +60,7 @@ public class ProfilerAspect {
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         Method method = joinPoint.getTarget().getClass().getDeclaredMethod(signature.getName(), signature.getMethod().getParameterTypes());
 
-        com.transformer.log.annotation.Profiler profiler = method.getAnnotation(com.transformer.log.annotation.Profiler.class);
+        com.transformer.call.annotation.Profiler profiler = method.getAnnotation(com.transformer.call.annotation.Profiler.class);
 
         String profilerName = StringUtils.defaultIfBlank(profiler.value(), signature.toString());
 
@@ -107,7 +107,7 @@ public class ProfilerAspect {
         return result;
     }
 
-    private void logger(com.transformer.log.annotation.Profiler profiler) {
+    private void logger(com.transformer.call.annotation.Profiler profiler) {
         // 整体超时或者中间步骤超时，打印性能日志
         if (Profiler.getDuration() > profiler.elapsed() || Boolean.TRUE.equals(timeout.get())) {
             logger.error(String.format("timeout@elapsed:%d,duration:%d,profile:%s", profiler.elapsed(), Profiler.getDuration(), Profiler.dump()));

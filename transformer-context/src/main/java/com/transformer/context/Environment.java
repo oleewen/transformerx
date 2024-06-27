@@ -1,17 +1,24 @@
 package com.transformer.context;
 
+import com.transformer.exception.helper.ExceptionHelper;
+import com.transformer.status.ResultCodeEnum;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.context.event.ApplicationEnvironmentPreparedEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.core.env.ConfigurableEnvironment;
 
+import java.util.Properties;
+
 /**
- * @author tao
+ * @author ouliyuan
  */
 public class Environment implements ApplicationListener<ApplicationEnvironmentPreparedEvent> {
 
+    public static final String APP_ID = "app.id";
+    public static final String REGISTRY_ADDRESS = "dubbo.registryAddress";
     private static ConfigurableEnvironment envConfigure;
+    private static String appName;
 
     public void onApplicationEvent(ApplicationEnvironmentPreparedEvent event) {
         setEnvironment(event.getEnvironment());
@@ -26,17 +33,34 @@ public class Environment implements ApplicationListener<ApplicationEnvironmentPr
     }
 
     /**
-     * 获取当前应用的 appId
+     * 获取当前应用的appName
      */
-    public static String getApplicationId() {
-        return com.zto.titans.common.env.EnvironmentManager.getAppName();
+    public static String getAppId() {
+        if (appName == null) {
+            String appId = System.getProperty(APP_ID);
+            if (appId != null) {
+                appName = appId;
+            } else {
+                Properties props = new Properties();
+
+                try {
+                    props.load(Environment.class.getResourceAsStream("/META-INF/app.properties"));
+                } catch (Exception e) {
+                    throw ExceptionHelper.createThrowableRuntimeException(ResultCodeEnum.INTERNAL_SERVER_ERROR, e);
+                }
+
+                appName = props.getProperty(APP_ID);
+            }
+        }
+
+        return appName;
     }
 
     /**
      * 获取当前环境的注册中心地址
      */
     public static String getRegistryAddress() {
-        return getEnvProperty(com.zto.titans.common.env.EnvironmentManager.DUBBO_REGISTRY_ADDRESS);
+        return getEnvProperty(REGISTRY_ADDRESS);
     }
 
     /**

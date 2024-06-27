@@ -1,6 +1,6 @@
 package com.transformer.mq.consumer;
 
-import com.zto.consumer.MsgConsumedStatus;
+import com.transformer.mq.message.MessageConsumedStatus;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -20,8 +20,8 @@ public abstract class KafkaMessageConsumer<T> extends MessageConsumer<T> {
      * @param offset  消息偏移量
      * @return
      */
-    public MsgConsumedStatus consumer(String group, String body, String queueId, String offset) {
-        MsgConsumedStatus status;
+    public MessageConsumedStatus consumer(String group, String body, String queueId, String offset) {
+        MessageConsumedStatus status;
         try {
             long start = System.currentTimeMillis();
             // 处理消息
@@ -30,21 +30,21 @@ public abstract class KafkaMessageConsumer<T> extends MessageConsumer<T> {
             // 记录处理日志
             logger(group, body, queueId, offset, success, start);
 
-            status = success ? MsgConsumedStatus.SUCCEED : MsgConsumedStatus.RETRY;
+            status = success ? MessageConsumedStatus.SUCCEED : MessageConsumedStatus.RETRY;
         } catch (IllegalArgumentException e) {
             // 记录异常日志
             error(group, body, queueId, offset, "illegal argument", e);
 
-            status = MsgConsumedStatus.SUCCEED;
+            status = MessageConsumedStatus.SUCCEED;
         } catch (Exception e) {
             // 记录异常日志
             error(group, body, queueId, offset, "exception", e);
 
-            status = MsgConsumedStatus.RETRY;
+            status = MessageConsumedStatus.RETRY;
         }
 
         // 不成功时，尝试再次投递
-        if (status != MsgConsumedStatus.SUCCEED) {
+        if (status != MessageConsumedStatus.SUCCEED) {
             return retry(status, body);
         }
 
@@ -64,7 +64,7 @@ public abstract class KafkaMessageConsumer<T> extends MessageConsumer<T> {
         return body;
     }
 
-    protected MsgConsumedStatus retry(MsgConsumedStatus status, String body) {
+    protected MessageConsumedStatus retry(MessageConsumedStatus status, String body) {
         return status;
     }
 }

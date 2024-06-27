@@ -1,9 +1,9 @@
-package com.transformer.log.aspect;
+package com.transformer.call.aspect;
 
 import com.google.common.base.Preconditions;
-import com.transformer.log.annotation.Call;
+import com.transformer.exception.NestedBusinessException;
 import com.transformer.exception.helper.ExceptionHelper;
-import com.transformer.exception.NestedRuntimeException;
+import com.transformer.call.annotation.Call;
 import com.transformer.helper.JsonHelper;
 import com.transformer.context.Context;
 import org.apache.commons.lang3.StringUtils;
@@ -42,7 +42,7 @@ public class CallAround {
     /** 随机采样频率 */
     private static Random random = new Random();
 
-    @Pointcut("@annotation(com.zto.tms.transformer.log.aspect.Call)")
+    @Pointcut("@annotation(com.transformer.call.aspect.Call)")
     public void callPoint() {
     }
 
@@ -136,7 +136,7 @@ public class CallAround {
     private Throwable handleException(Call call, Exception e) {
         /** 重新抛出异常 */
         // 自定义内部异常，直接抛出
-        if (e instanceof NestedRuntimeException) {
+        if (e instanceof NestedBusinessException) {
             return e;
         }
         // 系统内部异常，优先采用Call注解定义的业务码

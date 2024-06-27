@@ -1,7 +1,6 @@
 package com.transformer.exception.helper;
 
-
-import com.transformer.exception.NestedRuntimeException;
+import com.transformer.exception.NestedBusinessException;
 import com.transformer.exception.ThrowableRuntimeException;
 import com.transformer.status.Status;
 
@@ -12,7 +11,7 @@ public class ExceptionHelper {
     private ExceptionHelper(){}
 
     public static ThrowableRuntimeException createThrowableRuntimeException(String errorMessage) {
-        return createThrowableRuntimeException(NestedRuntimeException.parseMessage(errorMessage));
+        return createThrowableRuntimeException(NestedBusinessException.parseMessage(errorMessage));
     }
 
     public static ThrowableRuntimeException createThrowableRuntimeException(Throwable t) {
@@ -39,31 +38,31 @@ public class ExceptionHelper {
         return new ThrowableRuntimeException(status, errorCode, message, t);
     }
 
-    public static NestedRuntimeException createNestedException(String errorMessage) {
-        return createNestedException(NestedRuntimeException.parseMessage(errorMessage));
+    public static NestedBusinessException createNestedException(String errorMessage) {
+        return createNestedException(NestedBusinessException.parseMessage(errorMessage));
     }
 
-    public static NestedRuntimeException createNestedException(Throwable t) {
-        return new NestedRuntimeException(t);
+    public static NestedBusinessException createNestedException(Throwable t) {
+        return new NestedBusinessException(t);
     }
 
-    public static NestedRuntimeException createNestedException(Status status) {
-        return new NestedRuntimeException(status);
+    public static NestedBusinessException createNestedException(Status status) {
+        return new NestedBusinessException(status);
     }
 
-    public static NestedRuntimeException createNestedException(Status status, Throwable t) {
-        return new NestedRuntimeException(status, t);
+    public static NestedBusinessException createNestedException(Status status, Throwable t) {
+        return new NestedBusinessException(status, t);
     }
 
-    public static NestedRuntimeException createNestedException(String errorCode, String message) {
+    public static NestedBusinessException createNestedException(String errorCode, String message) {
         return createNestedException(Status.DEFAULT_STATUS, errorCode, message);
     }
 
-    public static NestedRuntimeException createNestedException(int status, String errorCode, String message) {
-        return new NestedRuntimeException(status, errorCode, message);
+    public static NestedBusinessException createNestedException(int status, String errorCode, String message) {
+        return new NestedBusinessException(status, errorCode, message);
     }
 
-    public static NestedRuntimeException createNestedException(int status, String errorCode, String message, Throwable t) {
-        return new NestedRuntimeException(status, errorCode, message, t);
+    public static NestedBusinessException createNestedException(int status, String errorCode, String message, Throwable t) {
+        return new NestedBusinessException(status, errorCode, message, t);
     }
 }

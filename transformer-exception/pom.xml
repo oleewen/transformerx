@@ -21,10 +21,7 @@
             <groupId>com.transformer</groupId>
             <artifactId>transformer-common</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.zto.titans</groupId>
-            <artifactId>titans-common</artifactId>
-        </dependency>
+
         <!-- ======= -->
         <!-- 三方依赖 -->
         <!-- ======= -->

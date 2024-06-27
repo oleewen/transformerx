@@ -34,14 +34,6 @@
         <!-- ======= -->
         <!-- 二方依赖 -->
         <!-- ======= -->
-        <dependency>
-            <groupId>com.zto.titans</groupId>
-            <artifactId>titans-dubbo</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.zto.titans</groupId>
-            <artifactId>titans-common</artifactId>
-        </dependency>
 
         <!-- ======= -->
         <!-- 三方依赖 -->
@@ -51,6 +43,10 @@
             <artifactId>lombok</artifactId>
             <version>RELEASE</version>
             <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>dubbo</artifactId>
         </dependency>
 
         <!-- validator-->
@@ -62,7 +58,6 @@
             <groupId>org.hibernate.validator</groupId>
             <artifactId>hibernate-validator</artifactId>
         </dependency>
-
 
 
     </dependencies>

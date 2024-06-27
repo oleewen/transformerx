@@ -6,7 +6,7 @@ import com.transformer.status.Status;
  * @author only
  * @since 2020/7/31
  */
-public class ThrowableRuntimeException extends NestedRuntimeException {
+public class ThrowableRuntimeException extends NestedBusinessException {
 
     public ThrowableRuntimeException(Throwable t) {
         super(t);

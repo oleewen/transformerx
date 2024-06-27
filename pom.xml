@@ -9,31 +9,39 @@
     <modules>
         <module>transformer-common</module>
         <module>transformer-context</module>
-        <module>transformer-dubbo</module>
         <module>transformer-es</module>
         <module>transformer-event</module>
         <module>transformer-exception</module>
         <module>transformer-call</module>
-        <module>transformer-mq</module>
         <module>transformer-util</module>
         <module>transformer-dao</module>
+        <module>transformer-dubbo</module>
+        <module>transformer-mq</module>
     </modules>
+    <dependencies>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.32</version>
+        </dependency>
+    </dependencies>
     <packaging>pom</packaging>
 
     <name>transformer</name>
-    <description>运输工具框架集</description>
+    <description>工具框架集</description>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
-       <parent.version>1.1.0.RELEASE</parent.version>
-
+        <parent.version>1.1.0.RELEASE</parent.version>
     </properties>
+
     <dependencyManagement>
         <dependencies>
-            <!-- 成员-->
-
+            <!-- ======= -->
+            <!-- 模块依赖 -->
+            <!-- ======= -->
             <dependency>
                 <groupId>com.transformer</groupId>
                 <artifactId>transformer-common</artifactId>
@@ -94,26 +102,6 @@
             <!-- ======= -->
             <!-- 二方依赖 -->
             <!-- ======= -->
-            <dependency>
-                <groupId>com.zto.titans</groupId>
-                <artifactId>titans-mq</artifactId>
-                <version>2.8.6.RELEASE</version>
-                <scope>compile</scope>
-            </dependency>
-            <dependency>
-                <groupId>com.zto.titans</groupId>
-                <artifactId>titans-dubbo</artifactId>
-                <version>2.8.6.RELEASE</version>
-                <scope>compile</scope>
-            </dependency>
-            <dependency>
-                <groupId>com.zto.titans</groupId>
-                <artifactId>titans-common</artifactId>
-                <version>2.8.6.RELEASE</version>
-                <scope>compile</scope>
-            </dependency>
-
-
 
             <!-- ======= -->
             <!-- 三方依赖 -->
@@ -230,7 +218,12 @@
                 <scope>compile</scope>
             </dependency>
 
-
+            <!-- dubbo -->
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>dubbo</artifactId>
+                <version>2.5.3</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -240,7 +233,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.1</version>
-            <configuration>
+                <configuration>
                     <source>8</source>
                     <target>8</target>
                 </configuration>
@@ -248,17 +241,4 @@
         </plugins>
     </build>
 
-
-    <distributionManagement>
-        <repository>
-            <id>releases</id>
-            <name>libs-release</name>
-            <url>https://jfrog.dev.ztosys.com/artifactory/libs-release/</url>
-        </repository>
-        <snapshotRepository>
-            <id>snapshots</id>
-            <name>libs-snapshot</name>
-            <url>https://jfrog.dev.ztosys.com/artifactory/libs-snapshot/</url>
-        </snapshotRepository>
-    </distributionManagement>
 </project>

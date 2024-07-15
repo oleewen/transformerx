@@ -10,7 +10,6 @@
 常用工具 
 
 提供DateHelper、JsonHelper、BeanHelper等编码常用工具。
-[详细说明]()
 
 ## transformer-exception
 通用的异常模块

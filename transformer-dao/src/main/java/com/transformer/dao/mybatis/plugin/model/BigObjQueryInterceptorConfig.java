@@ -3,7 +3,6 @@ package com.transformer.dao.mybatis.plugin.model;
 
 import com.transformer.dao.enums.InterceptDispositionEnum;
 import com.transformer.helper.JsonHelper;
-import com.transformer.helper.StringHelper;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 

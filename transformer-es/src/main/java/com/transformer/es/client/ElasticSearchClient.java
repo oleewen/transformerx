@@ -35,7 +35,6 @@ import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.SortBuilder;
 import org.elasticsearch.search.sort.SortOrder;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
@@ -55,8 +54,6 @@ import java.util.concurrent.TimeUnit;
 @ConfigurationProperties(prefix = "es")
 @Slf4j
 public class ElasticSearchClient {
-
-    private final static org.slf4j.Logger logger = LoggerFactory.getLogger(ElasticSearchClient.class);
 
     private RestHighLevelClient client;
 
@@ -83,7 +80,7 @@ public class ElasticSearchClient {
             IndexResponse response = client.index(new IndexRequest(indexName).id(id).source(jsonData, XContentType.JSON), RequestOptions.DEFAULT);
             op = response.getResult().getOp();
         } catch (IOException e) {
-            logger.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
         return doOp(op);
     }
@@ -118,12 +115,12 @@ public class ElasticSearchClient {
         try {
             bulkResponse = client.bulk(request, RequestOptions.DEFAULT);
         } catch (IOException e) {
-            logger.error("Es批量插入报错：" + e.getMessage(), e);
+            log.error("Es批量插入报错：" + e.getMessage(), e);
         }
         //提交过程是否产生错误
         if (bulkResponse != null && bulkResponse.hasFailures()) {
             String failureMessage = "ES批量写入报错：" + bulkResponse.buildFailureMessage();
-            logger.error(failureMessage);
+            log.error(failureMessage);
             return failureMessage;
         }
         return "ES批量写入成功：" + elasticSearchIndexList.size();
@@ -158,7 +155,7 @@ public class ElasticSearchClient {
         try {
             bulkResponse = client.bulk(request, RequestOptions.DEFAULT);
         } catch (IOException e) {
-            logger.error("Es批量删除报错：" + e.getMessage(), e);
+            log.error("Es批量删除报错：" + e.getMessage(), e);
         }
         //提交过程是否产生错误
         if (bulkResponse != null && bulkResponse.hasFailures()) {
@@ -179,7 +176,7 @@ public class ElasticSearchClient {
             UpdateResponse response = client.update(new UpdateRequest(indexName, id).doc(jsonData, XContentType.JSON), RequestOptions.DEFAULT);
             op = response.getResult().getOp();
         } catch (IOException e) {
-            logger.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
         return doOp(op);
     }
@@ -193,7 +190,7 @@ public class ElasticSearchClient {
             UpdateResponse response = client.update(updateRequest, RequestOptions.DEFAULT);
             op = response.getResult().getOp();
         } catch (IOException e) {
-            logger.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
         return doOp(op);
     }
@@ -229,12 +226,12 @@ public class ElasticSearchClient {
         try {
             bulkResponse = client.bulk(request, RequestOptions.DEFAULT);
         } catch (IOException e) {
-            logger.error("Es批量更新报错：" + e.getMessage(), e);
+            log.error("Es批量更新报错：" + e.getMessage(), e);
         }
         //提交过程是否产生错误
         if (bulkResponse != null && bulkResponse.hasFailures()) {
             String failureMessage = "ES批量更新报错：" + bulkResponse.buildFailureMessage();
-            logger.error(failureMessage);
+            log.error(failureMessage);
             return failureMessage;
         }
         return "ES批量更新成功：" + elasticSearchIndexList.size();
@@ -251,7 +248,7 @@ public class ElasticSearchClient {
             DeleteResponse response = client.delete(new DeleteRequest(indexName, id), RequestOptions.DEFAULT);
             op = response.getResult().getOp();
         } catch (IOException e) {
-            logger.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
         return doOp(op);
     }
@@ -263,7 +260,7 @@ public class ElasticSearchClient {
             AcknowledgedResponse delete = client.indices().delete(deleteIndexRequest, RequestOptions.DEFAULT);
             return delete.isAcknowledged();
         }catch(IOException e){
-            logger.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
             return false;
         }
     }
@@ -274,11 +271,12 @@ public class ElasticSearchClient {
             GetIndexRequest request = new GetIndexRequest(index);
             return  client.indices().exists(request, RequestOptions.DEFAULT);
         }catch(IOException e){
-            logger.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
             return false;
         }
     }
 
+    @SuppressWarnings("rawtypes")
     public <T> List<T> searchAll(String index,
                                  QueryBuilder queryBuilder,
                                  List<SortBuilder> sortBuilders,
@@ -307,7 +305,7 @@ public class ElasticSearchClient {
                 list.add(JsonHelper.parseObject(json, clazz));
             }
         } catch (Exception e) {
-            logger.error("es查询报错：" + e.getMessage(), e);
+            log.error("es查询报错：" + e.getMessage(), e);
         }
 
         return list;
@@ -319,6 +317,7 @@ public class ElasticSearchClient {
         return searchScroll(index, queryBuilder, null, clazz);
     }
 
+    @SuppressWarnings("rawtypes")
     public <T> List<T> searchScroll(String index,
                                     QueryBuilder queryBuilder,
                                     List<SortBuilder> sortBuilders,
@@ -344,7 +343,9 @@ public class ElasticSearchClient {
         searchRequest.scroll(scroll);
 
         SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
-        assert searchResponse != null;
+        if (searchResponse == null) {
+            return list;
+        }
 
         String scrollId = searchResponse.getScrollId();
         while (searchResponse.getHits().getHits().length != 0) {
@@ -375,7 +376,7 @@ public class ElasticSearchClient {
                 return clearScrollResponse.isSucceeded();
             }
         } catch (Exception e) {
-            logger.error("es清除滚屏报错：" + e.getMessage(), e);
+            log.error("es清除滚屏报错：" + e.getMessage(), e);
         }
         return false;
     }
@@ -384,6 +385,7 @@ public class ElasticSearchClient {
      * @Description: 适合实时翻页，但不适合批量查询（慎用，实时查询下一页，如果数据，一直有新增，do {}while可能死循环）
      * @Date: 2022/8/27 18:48
      */
+    @SuppressWarnings("rawtypes")
     public <T> List<T> searchAfter(String index,
                                    QueryBuilder queryBuilder,
                                    List<SortBuilder> sortBuilders,
@@ -409,10 +411,12 @@ public class ElasticSearchClient {
         try {
             searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
         } catch (IOException e) {
-            logger.error("es查询报错：" + e.getMessage(), e);
+            log.error("es查询报错：" + e.getMessage(), e);
         }
 
-        assert searchResponse != null;
+        if (searchResponse == null) {
+            return list;
+        }
 
         SearchHit[] searchHits = searchResponse.getHits().getHits();
         if (searchHits.length == 0) {
@@ -430,7 +434,7 @@ public class ElasticSearchClient {
                 searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
                 searchHits = searchResponse.getHits().getHits();
             } catch (Exception e) {
-                logger.error("es查询报错：" + e.getMessage(), e);
+                log.error("es查询报错：" + e.getMessage(), e);
             }
 
         } while (searchHits.length != 0);
@@ -475,7 +479,9 @@ public class ElasticSearchClient {
     }
 
     private void initEsClient() {
-        logger.info("ES客户端初始化...");
+        if(log.isInfoEnabled()) {
+            log.info("elastic search client init");
+        }
         final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
         credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(username, password));
 
@@ -496,7 +502,9 @@ public class ElasticSearchClient {
     }
 
     private void check() {
-        logger.info("ES客户端检测");
+        if(log.isInfoEnabled()) {
+            log.info("elastic search client check");
+        }
         if (client == null || !client.getLowLevelClient().isRunning()) {
             initEsClient();
         }
@@ -509,7 +517,7 @@ public class ElasticSearchClient {
                 client.close();
             }
         } catch (IOException e) {
-            logger.error("client close error ! ", e);
+            log.error("client close error ! ", e);
         }
     }
 
@@ -553,9 +561,11 @@ public class ElasticSearchClient {
             //request.setBatchSize(10000);
             //request.setConflicts("proceed");
             BulkByScrollResponse response = client.deleteByQuery(request, RequestOptions.DEFAULT);
-            logger.info("ES批量条件删除成功：" + response);
+            if(log.isInfoEnabled()) {
+                log.info("ES批量条件删除成功：" + response);
+            }
         } catch (IOException e) {
-            logger.error("ES批量条件删除异常", e);
+            log.error("ES批量条件删除异常", e);
         }
     }
 
@@ -563,26 +573,12 @@ public class ElasticSearchClient {
      * 描述：业务常量类定义
      */
     private interface Configurations {
-        /**
-         * 渡口
-         */
-        Long FERRY_SITE_ID = 1047725L;
 
-        // ---------- ES 相关常量 ---------
-
-        //中心时刻监控
-        String CENTER_MONITOR_INDEX = "center_monitor_index";
-        //批次变化
-        String BATCH_CHANGE_INDEX = "batch_change_index";
-        //批次变化别名
-        String BATCH_CHANGE_INDEX_ALIAS = "batch_change_index_alias";
         // scroll查询size
         int SCROLL_STEP_SIZE = 10000;
 
 
         int ES_MAX_SIZE = 10000;
-
-        int ES_MAX_SIZE_50000 = 50000;
 
     }
 }

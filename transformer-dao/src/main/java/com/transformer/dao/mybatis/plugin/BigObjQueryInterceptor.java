@@ -70,6 +70,7 @@ public class BigObjQueryInterceptor implements Interceptor {
         return proceed;
     }
 
+    @SuppressWarnings("rawtypes")
     private void handlerAfter(BigObjQueryInterceptorConfig config, Invocation invocation ,Object proceed) {
         try {
             if (config == null || config.isClosed()) {
@@ -89,7 +90,7 @@ public class BigObjQueryInterceptor implements Interceptor {
 
     }
 
-    private   void  doDisposition(BigObjQueryInterceptorConfig config, Invocation invocation) {
+    private void doDisposition(BigObjQueryInterceptorConfig config, Invocation invocation) {
         StatementHandler statementHandler = (StatementHandler) invocation.getTarget();
         String sql = statementHandler.getBoundSql().getSql();
 
@@ -99,10 +100,6 @@ public class BigObjQueryInterceptor implements Interceptor {
         }
         if (WARN_LOG.contains(config.getDispositions())) {
             log.warn("高危sql，无where和limit sql = {}", sql);
-            return  ;
         }
-        return  ;
     }
-
-
 }

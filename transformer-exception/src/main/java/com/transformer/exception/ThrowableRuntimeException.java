@@ -3,10 +3,12 @@ package com.transformer.exception;
 import com.transformer.status.Status;
 
 /**
+ * 可抛出的运行时异常
+ *
  * @author only
  * @since 2020/7/31
  */
-public class ThrowableRuntimeException extends NestedBusinessException {
+public class ThrowableRuntimeException extends NestedRuntimeException {
 
     public ThrowableRuntimeException(Throwable t) {
         super(t);

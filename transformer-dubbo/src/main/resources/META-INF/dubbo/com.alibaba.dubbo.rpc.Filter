@@ -1,0 +1,3 @@
+dubbo.provider.-exception=com.alibaba.dubbo.rpc.filter.ExceptionFilter
+globalValidatorFilter=com.transformer.dubbo.filter.GlobalValidatorFilter
+globalExceptionFilter=com.transformer.dubbo.filter.GlobalExceptionFilter

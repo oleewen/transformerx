@@ -68,7 +68,6 @@ public class NowhereSQLInterceptor implements Interceptor {
     private static final String SQL_INSERT = "insert "; //注意带前空格
     private static final String SQL_LIMIT = " limit "; //注意带前后空格  // mysql风格 分页
     private static final String SQL_ROWS_ONLY = "rows only"; //注意带前后空格  // oracle旧风格分页：WHERE ROWNUM <= 20 oracle新风格分页 ：OFFSET 10 ROWS FETCH NEXT 10 ROWS ONLY
-    private static final String SQL_FROM = " from ";
     private static final String SQL_DUAL = "from dual";//oracle风格  查询序列
     private static final String BLANK = "\\s+";//空白字符正则表达  （包括空格、制表符、换行符等）
 
@@ -190,19 +189,19 @@ public class NowhereSQLInterceptor implements Interceptor {
 
         if (INTERCEPT_DEL.contains(config.getDispositions())){
             if ( SqlCommandType.DELETE.equals(sqlCommandType)){
-                log.info("高危sql，无where和limit sql = {}", sql);
+                log.warn("高危sql，无where和limit sql = {}", sql);
                 throw new DangerousSQLException("高危SQL,SQL:" + sql);
             }
         }
         if (INTERCEPT_SELECT.contains(config.getDispositions())){
             if ( SqlCommandType.SELECT.equals(sqlCommandType)){
-                log.info("高危sql，无where和limit sql = {}", sql);
+                log.warn("高危sql，无where和limit sql = {}", sql);
                 throw new DangerousSQLException("高危SQL,SQL:" + sql);
             }
         }
         if (INTERCEPT_UPDATE.contains(config.getDispositions())){
             if ( SqlCommandType.UPDATE.equals(sqlCommandType)){
-                log.info("高危sql，无where和limit sql = {}", sql);
+                log.warn("高危sql，无where和limit sql = {}", sql);
                 throw new DangerousSQLException("高危SQL,SQL:" + sql);
             }
         }
@@ -213,15 +212,8 @@ public class NowhereSQLInterceptor implements Interceptor {
         if (WARN_LOG.contains(config.getDispositions())){
             log.warn("高危sql，无where和limit sql = {}", sql);
             return;
-
         }
-
-
-
     }
-
-
-
 
     /**
      * 是否为白名单，
@@ -242,8 +234,5 @@ public class NowhereSQLInterceptor implements Interceptor {
             return false;
         }
         return config.getWhiteList().contains(  mappedStatement.getId()  );
-
     }
-
-
 }

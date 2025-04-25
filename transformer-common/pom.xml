@@ -6,12 +6,12 @@
     <parent>
         <groupId>com.transformer</groupId>
         <artifactId>transformer</artifactId>
-        <version>1.1.0.RELEASE</version>
+        <version>${revision}</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>transformer-common</artifactId>
     <packaging>jar</packaging>
-    <version>${parent.version}</version>
 
     <dependencies>
         <!-- ======= -->

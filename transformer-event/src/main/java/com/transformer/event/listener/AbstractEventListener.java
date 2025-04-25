@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
  * @author only
  * @Date 2015/8/18.
  */
+@SuppressWarnings("rawtypes")
 public abstract class AbstractEventListener<E extends AbstractEvent, R extends AbstractResult> implements java.util.EventListener {
 
     /** 日志对象 */

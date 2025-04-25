@@ -1,6 +1,6 @@
 package com.transformer.mq.consumer;
 
-import com.transformer.mq.message.MessageConsumedStatus;
+import com.zto.consumer.MsgConsumedStatus;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -9,7 +9,7 @@ import lombok.extern.slf4j.Slf4j;
  * @author ouliyuan 2023/7/18
  */
 @Slf4j
-public abstract class KafkaMessageConsumer<T> extends MessageConsumer<T> {
+public abstract class KafkaMessageConsumer<T> extends RocketMQMessageConsumer<T> {
 
     /**
      * 消费Kafka消息
@@ -20,31 +20,31 @@ public abstract class KafkaMessageConsumer<T> extends MessageConsumer<T> {
      * @param offset  消息偏移量
      * @return
      */
-    public MessageConsumedStatus consumer(String group, String body, String queueId, String offset) {
-        MessageConsumedStatus status;
+    public MsgConsumedStatus consumer(String group, String body, String queueId, String offset) {
+        MsgConsumedStatus status;
         try {
             long start = System.currentTimeMillis();
             // 处理消息
-            boolean success = handler(body);
+            boolean success = handler(body, null);
 
             // 记录处理日志
             logger(group, body, queueId, offset, success, start);
 
-            status = success ? MessageConsumedStatus.SUCCEED : MessageConsumedStatus.RETRY;
+            status = success ? MsgConsumedStatus.SUCCEED : MsgConsumedStatus.RETRY;
         } catch (IllegalArgumentException e) {
             // 记录异常日志
             error(group, body, queueId, offset, "illegal argument", e);
 
-            status = MessageConsumedStatus.SUCCEED;
+            status = MsgConsumedStatus.SUCCEED;
         } catch (Exception e) {
             // 记录异常日志
             error(group, body, queueId, offset, "exception", e);
 
-            status = MessageConsumedStatus.RETRY;
+            status = MsgConsumedStatus.RETRY;
         }
 
         // 不成功时，尝试再次投递
-        if (status != MessageConsumedStatus.SUCCEED) {
+        if (status != MsgConsumedStatus.SUCCEED) {
             return retry(status, body);
         }
 
@@ -64,7 +64,7 @@ public abstract class KafkaMessageConsumer<T> extends MessageConsumer<T> {
         return body;
     }
 
-    protected MessageConsumedStatus retry(MessageConsumedStatus status, String body) {
+    protected MsgConsumedStatus retry(MsgConsumedStatus status, String body) {
         return status;
     }
 }

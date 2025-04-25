@@ -46,6 +46,7 @@ public class Context {
      * @param value 值
      * @return 返回key对应的旧对象
      */
+    @SuppressWarnings("unchecked")
     public static <T> T put(String key, T value) {
         Object old = attachments.put(key, value);
         return value != null ? (T) old : null;
@@ -57,6 +58,7 @@ public class Context {
      * @param key 键
      * @return key对应的值对象
      */
+    @SuppressWarnings("unchecked")
     public static <T> T get(String key) {
         Object value = attachments.get(key);
         return value != null ? (T) value : null;
@@ -69,6 +71,7 @@ public class Context {
      * @param value 值
      * @return 返回key对应的旧对象
      */
+    @SuppressWarnings("unchecked")
     public static <T> T putThreadLocal(String key, T value) {
         ThreadLocal<T> threadLocal = (ThreadLocal<T>) threadLocals.computeIfAbsent(key, (Function<? super String, ? extends ThreadLocal<?>>) new ThreadLocal<>());
 
@@ -83,6 +86,7 @@ public class Context {
      * @param key 键
      * @return key对应的值对象
      */
+    @SuppressWarnings("unchecked")
     public static <T> T getThreadLocal(String key) {
         ThreadLocal<T> threadLocal = (ThreadLocal<T>) threadLocals.get(key);
         if (threadLocal == null) {

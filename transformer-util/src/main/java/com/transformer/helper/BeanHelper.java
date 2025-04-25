@@ -5,6 +5,7 @@ import com.google.common.collect.Maps;
 import com.transformer.exception.helper.ExceptionHelper;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.SerializationUtils;
+import org.springframework.util.ReflectionUtils;
 
 import java.beans.BeanInfo;
 import java.beans.Introspector;
@@ -44,7 +45,7 @@ public abstract class BeanHelper {
         try {
             org.springframework.beans.BeanUtils.copyProperties(orig, desc);
         } catch (Exception e) {
-            throw ExceptionHelper.createThrowableRuntimeException(e);
+            throw ExceptionHelper.createThrowableException(e);
         }
         return desc;
     }
@@ -93,7 +94,7 @@ public abstract class BeanHelper {
             }
             return result;
         } catch (Exception e) {
-            throw ExceptionHelper.createThrowableRuntimeException(e);
+            throw ExceptionHelper.createThrowableException(e);
         }
     }
 
@@ -124,6 +125,7 @@ public abstract class BeanHelper {
      *
      * @return 结果对象
      */
+    @SuppressWarnings("unchecked")
     public static <T> T instance(Type type) {
         // 用RESULT泛型
         Class<T> clazz;
@@ -185,14 +187,14 @@ public abstract class BeanHelper {
         return false;
     }
 
+    @SuppressWarnings("unchecked")
     public static <O, V> V getFieldValue(O object, String fieldName) {
-        try {
-            PropertyDescriptor descriptor = new PropertyDescriptor(fieldName, object.getClass());
-
-            return (V) descriptor.getReadMethod().invoke(object);
-        } catch (Exception e) {
-            throw ExceptionHelper.createNestedException(e);
+        Field field = ReflectionUtils.findField(object.getClass(), fieldName);
+        if (field == null) {
+            throw ExceptionHelper.createNestedException("field not found: " + fieldName);
         }
+        ReflectionUtils.makeAccessible(field);
+        return (V) ReflectionUtils.getField(field, object);
     }
 
     public static List<Field> getAllDeclaredFields(Class<?> clazz) {

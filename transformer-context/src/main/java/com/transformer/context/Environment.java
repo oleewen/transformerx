@@ -1,66 +1,73 @@
 package com.transformer.context;
 
-import com.transformer.exception.helper.ExceptionHelper;
-import com.transformer.status.ResultCodeEnum;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.context.event.ApplicationEnvironmentPreparedEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.core.env.ConfigurableEnvironment;
 
-import java.util.Properties;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
 
 /**
- * @author ouliyuan
+ * @author only
  */
 public class Environment implements ApplicationListener<ApplicationEnvironmentPreparedEvent> {
 
-    public static final String APP_ID = "app.id";
-    public static final String REGISTRY_ADDRESS = "dubbo.registryAddress";
     private static ConfigurableEnvironment envConfigure;
-    private static String appName;
+    private static final Map<String, String> ENV_MAP = new ConcurrentHashMap<>();
 
     public void onApplicationEvent(ApplicationEnvironmentPreparedEvent event) {
         setEnvironment(event.getEnvironment());
     }
 
-    public static String getEnvProperty(String key) {
-        return getEnvironment().getProperty(key);
+    public void configChange() {
+        ENV_MAP.clear(); // 清空缓存
     }
 
-    public static String getEnvProperty(String key, String defaultValue) {
-        return getEnvironment().getProperty(key, defaultValue);
+    public static String getProperty(String key) {
+        return getOrLoadProperty(key, () -> getEnvironment().getProperty(key));
+    }
+
+    public static String getProperty(String key, String defaultValue) {
+        return getOrLoadProperty(key, () -> getEnvironment().getProperty(key, defaultValue));
+    }
+
+    public static Integer getIntProperty(String key) {
+        String value = getProperty(key);
+        return value != null ? Integer.parseInt(value) : null;
+    }
+
+    public static Integer getIntProperty(String key, Integer defaultValue) {
+        String value = getProperty(key);
+        return value != null ? Integer.parseInt(value) : defaultValue;
+    }
+
+    public static boolean getBooleanProperty(String key) {
+        String value = getProperty(key);
+        return BooleanUtils.toBoolean(value);
+    }
+
+    public static boolean getBooleanProperty(String key, boolean defaultValue) {
+        String value = getProperty(key);
+        return BooleanUtils.toBooleanDefaultIfNull(BooleanUtils.toBooleanObject(value), defaultValue);
     }
 
     /**
-     * 获取当前应用的appName
+     * 获取当前应用的 appId
      */
-    public static String getAppId() {
-        if (appName == null) {
-            String appId = System.getProperty(APP_ID);
-            if (appId != null) {
-                appName = appId;
-            } else {
-                Properties props = new Properties();
-
-                try {
-                    props.load(Environment.class.getResourceAsStream("/META-INF/app.properties"));
-                } catch (Exception e) {
-                    throw ExceptionHelper.createThrowableRuntimeException(ResultCodeEnum.INTERNAL_SERVER_ERROR, e);
-                }
-
-                appName = props.getProperty(APP_ID);
-            }
-        }
-
-        return appName;
+    public static String getApplicationId() {
+        return com.zto.titans.common.env.EnvironmentManager.getAppName();
     }
 
     /**
      * 获取当前环境的注册中心地址
      */
     public static String getRegistryAddress() {
-        return getEnvProperty(REGISTRY_ADDRESS);
+        return getProperty(com.zto.titans.common.env.EnvironmentManager.DUBBO_REGISTRY_ADDRESS);
     }
 
     /**
@@ -78,9 +85,9 @@ public class Environment implements ApplicationListener<ApplicationEnvironmentPr
     }
 
     /**
-     * 判断当前环境是否为 uat 环境
+     * 判断当前环境是否为 pre 环境
      */
-    public static boolean isUat() {
+    public static boolean isPre() {
         return isEnv(Env.PRE);
     }
 
@@ -92,12 +99,29 @@ public class Environment implements ApplicationListener<ApplicationEnvironmentPr
     }
 
     private static boolean isEnv(Env env) {
+        String value = getOrLoadProperty(Env.ENV_NAME, Environment::getEnv);
+
+        return StringUtils.containsIgnoreCase(value, env.getEnvName());
+    }
+
+    private static String getEnv() {
         String[] activeProfiles = getEnvironment().getActiveProfiles();
-        if (ArrayUtils.isEmpty(activeProfiles)) {
-            return false;
+        if (ArrayUtils.isNotEmpty(activeProfiles)) {
+            return activeProfiles[0];
         }
-        String activeProfile = activeProfiles[0];
-        return StringUtils.containsIgnoreCase(activeProfile, env.getEnvName());
+        return null;
+    }
+
+    private static String getOrLoadProperty(String key, Supplier<String> supplier) {
+        // 优先从缓存中获取属性值
+        String value = ENV_MAP.get(key);
+        if (Objects.isNull(value)) {
+            value = supplier.get();
+            if (Objects.nonNull(value)) {
+                ENV_MAP.put(key, value); // 将属性值放入缓存
+            }
+        }
+        return value;
     }
 
     private static ConfigurableEnvironment getEnvironment() {

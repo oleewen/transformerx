@@ -1,0 +1,317 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+---
+description:Java编码规范
+globs:["*.java"]
+alwaysApply:false
+---
+你是Java编程的专家，精通Java语言、Spring Boot、Spring 框架、Maven、JUnit及相关Java技术中间件。
+
+# 代码风格与结构
+    
+## 总体要求
+- 编写整洁、高效、文档完备的Java代码，参考后面的代码规范
+- API设计遵循RESTful API设计模式，基于Dubbo提供服务
+- 采用整洁架构分层模式，符合最佳实践，参考后面工程结构规范
+- 设计原则遵循SOLID原则
+- 使用Spring Boot启动工程和管理依赖
+- 准确使用注解，例如@SpringBootApplication、@RestController、@Service
+- 合理利用Spring Boot自动配置机制
+- 使用@ControllerAdvice + @ExceptionHandler实现全局异常处理
+- 优先使用Java 17+特性
+- 优先使用Bean Validation，例如@Valid
+- 使用Profile实现多环境配置
+- 使用@ConfigurationProperties
+- 使用JUnit 5测试框架，支持Mock，支持@SpringBootTest
+- 使用Maven管理依赖和构建程序
+
+## 代码规范
+### 命名规范
+#### 命名原则
+- 业务语义优先，望文生义
+- 可读性优先，词义明确
+- 禁止美元符号、下划线
+- 禁止拼音和英文混合
+#### 变量命名
+- lowCamelCase驼峰风格
+- 布尔类型属性不加is前缀
+- 货币以最小单位整型存储
+- 数组命名类型紧连中括号
+- 作用域范围不允许重名
+- 完整词组合表达，杜绝非通用缩写
+#### 常量命名
+- 全大写，下划线分隔
+- 禁用魔法值（未预先定义的常量）
+- 尽量避免常量类，常量放在实体类
+#### 方法命名
+- lowCamelCase驼峰风格
+- 动词或动词短语
+- 表达清晰的业务含义
+#### 类名命名
+- UpperCamelCase驼峰风格
+- DO/DTO等专有名词缩写例外
+- 抽象类以Abstract开头
+- 测试类以Test结尾
+- 异常类以Exception结尾
+- 推荐单数形式，不强制
+#### 包名命名
+- 统一使用小写，圆点.分隔
+- 统一使用单数形式
+
+### 异常规范
+#### 捕捉原则
+- 异常不可作为流程及条件控制
+- 异常在顶层入口和底层出口捕捉
+- 捕捉异常和抛异常须完全配合
+- 捕获异常必须处理，不可吞噬
+#### 异常定义
+- 区分unchecked/checked异常
+- 忌直接抛出RuntimeException
+- 请尽可能使用业界定义的异常
+#### 异常处理
+- catch中要打印堆栈信息
+- finally中要对资源及流对象关闭
+- 禁止finally中使用return
+- 处理异常若存在事务要手动回滚
+- 应用内部出错推荐异常抛出
+- 系统间通信使用状态码返回
+- 异常切忌在系统间进行传递
+
+### 日志规范
+#### 原则
+- 日志需分类合理，日志名称语义明确
+#### 使用方式
+- 必须使用SLF4J作为日志API
+- 日志必须保留至少1-2周
+- INFO级别以下条件或占位符输出
+- 避免重复打日志，additivity=false
+- 日志级别日常用INFO，生产用WARN
+#### 日志格式
+- 内容含时间、类名、方法名、结果
+- 异常日志要包含上下文和堆栈信息
+
+### 格式规范
+#### 括号
+- 括号与字符之间不出现空格
+- 左大括号前不换行
+- 左大括号后及右大括号前换行
+- 控制语句开始处与括号之间保留空格
+#### 空格
+- 注释双斜线与内容间只需一个空格
+- 代码使用4空格缩进
+- 方法入参逗号后必须加空格
+- 运算符左右都需要空格
+#### IDE
+- IDE的text encoding设置为UTF8
+- IDE文件换行符使用Unix格式
+- 不同逻辑，语义及业务使用空行分割
+- 每行最大长度120字符
+
+### 注释规范
+#### 注释原则
+- 凡是写注释的地方优先用代码表述
+- 从业务场景、用户视角描述
+- 业务规则有明确的注释
+- 分支、转折需特别注释
+#### 格式
+- 类属性、方法用 /** */ 格式
+- 抽象方法用javadoc注释
+- 类必须添加作者、日期
+- 方法内单行注释用//，多行用 /* */ 
+- 枚举类字段必须有注释，解释含义
+
+### 通信规范
+#### 系统间
+- 服务提供方禁止给消费方返回空
+- 系统间通信使用response对象
+- 通过response对象判定调用结果
+- 系统间调用2s作为默认超时时间
+#### 系统内
+- 层与层之间调用结果无需包装
+- 方法失败使用异常方式传递结果
+- API层设置异常拦截接收失败结果
+
+### OOP规范
+#### 方法
+- 方法复写加@Override
+- 在用API不许修改方法签名
+- 过时接口加@Deprecated
+- 禁止使用已过时方法
+- 参数个数不超过5
+- 禁用Object.clone()
+#### 类
+- 避免用对象访问类静态变量
+- 业务逻辑禁用构造器，应用init
+- serialVersionUID尽可能不修改
+- 过时类加@Deprecated
+- 禁用已过时类
+#### 比较
+- equals比较优先用常量调用
+- 整型包装类值比较使用equals
+- 浮点型等值有误差，用BigDecimal运算
+#### 集合
+- 遍历集合使用foreach操作对象
+- 集合对象更改需考虑并发加锁
+- 集合转数组使用toArray方法
+- ArrayList的subList勿强转ArrayList
+#### 锁
+- 并发修改数据时考虑加锁
+- 最大限度减少加锁范围
+- 多资源加锁时考虑顺序避免死锁
+#### 线程
+- 线程&线程池命名语义要明确
+- 用ThreadPoolExecutor创建线程池
+- 线程资源从线程池中获取
+- 执行定时任务时请使用ScheduledExecutorService
+- 获取单例或方法要保证线程安全
+- 尽量使用Instant及LocalDateTime
+#### 控制
+- switch使用break/return来终止
+- switch最后必须包含default分支
+- if/else/for/while/do必须有大括号
+- 高并发勿使用"等于"作为中断
+
+## 工程结构规范
+### 工程模块
+- 领域服务模块:domain
+- 应用服务模块:application
+- 基础设施模块:infrastructure
+- 开放接口模块:api
+- 服务实现模块:service
+- 应用启动模块:boot
+
+### 依赖关系
+boot --> service
+boot --> infrastructure
+service --> api
+service --> application
+application --> domain
+infrastructure --> domain
+
+### 模块职责
+#### 领域服务模块
+- 负责业务逻辑实现
+- 负责聚合根的生命周期管理
+- 定义聚合根持久化能力
+- 领域模型层实现：领域对象model、领域服务service、资源库repository、事件event、查询门面facade
+- 代码结构如下
+    ```
+    - com.${company}.${businessdomain}.${context}
+      \- domain
+      |- service
+      |- facade
+      |- model
+      |- event
+      \- repository
+    ```
+
+#### 应用服务模块
+- 用户命令的处理流程编排
+- 负责控制逻辑，定义处理的步骤
+- 协调领域服务，完成处理时序
+- 实现应用服务层，面向用例或用户故事，实现处理流程（service）、处理节点（action）
+- 代码结构如下
+    ```
+    - com.${company}.${businessdomain}.${context}
+      \- application
+        |- service
+        |- action
+        |- command
+        |- query
+        \- result
+    ```
+
+## 基础设施模块
+- 依赖领域层资源库，并实现对象持久化
+- 依赖存储或服务实现数据读写
+- 通过事务确保聚合根数据一致性
+- 实现资源库，支持数据存取，含数据访问对象dao、数据库配置config、数据对象entity、数据映射mapper、数据对象&领域对象工厂
+- 代码结构如下
+    ```
+    - com.${company}.${businessdomain}.${context}
+      \- infrastructure
+        |- dao
+        |- config
+        |- entity
+        |- mapper
+        |- message
+        |- dal
+        |- call
+        \- factory
+   ```
+
+#### 开放接口模块
+- 定义服务接口，含公共常量&通用定义，服务接口定义
+- RPC服务接口定义Service（api领域开放接口，service领域封闭接口，open开放接口）
+- 输入输出对象：Request、Response、DTO
+- 开放的常量const、枚举enum、通用util类、异常类
+- 代码结构如下
+    ```java
+    - com.${company}.${businessdomain}.${context}
+      |- common
+      | |- consts
+      | |- enums
+      | \- exception
+    - com.${company}.${businessdomain}.${context}
+      \- api|service|open
+        |- module
+        | |- request
+        | |- response
+        | \- dto
+        \- ${Aggregate}Service
+      ```
+
+#### 服务实现模块
+- 适配、转换协议
+- 输入验证、转换，输出封装
+- 全局异常、状态码封装
+- 定义service层接口（HTTP协议）和实现（RPC协议）
+- 代码结构如下
+    ```
+    - com.${company}.${businessdomain}.${context}
+        |- message
+        | |- consumer  
+        | \- listener
+        |- job
+        | |- task
+        | \- handle|- service
+        |- rpc
+        | \- ${Aggregate}ServiveImpl
+        \- web
+          |- controller
+          |  \- ${Aggregate}Controller
+          |- request
+          |- response
+          |- config
+          \- filter    
+    ```
+
+#### 应用启动模块
+- 负责启动应用，定义Spring Boot Application
+- 代码结构如下
+    ```
+    - com.${company}.${businessdomain}.${context}
+        \- boot.spring.SpringBootApplication.java
+    ```
+
+## 最佳实践
+### 异常处理
+- 不要捕获Exception
+- 不要忽略异常
+- 使用自定义异常
+- 记录详细的错误信息
+
+### 并发编程
+- 优先使用线程池
+- 正确使用synchronized
+- 避免死锁
+- 使用volatile关键字
+
+### 性能优化
+- 使用StringBuilder
+- 避免创建不必要的对象
+- 合理使用缓存
+- 及时释放资源
